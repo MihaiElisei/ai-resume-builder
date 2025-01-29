@@ -18,11 +18,11 @@ export const personalInfoSchema = z.object({
     .refine(
       (file) =>
         !file || (file instanceof File && file.type.startsWith("image/")),
-      "Must be an image file", // Ensures the file is an image
+      "Must be an image file" // Ensures the file is an image
     )
     .refine(
-      (file) => !file || file.size <= 1024 * 1024 * 4, // Max file size 4MB
-      "File must be less than 4MB",
+      (file) => !file || file.size <= 1024 * 1024 * 4, // Max file size: 4MB
+      "File must be less than 4MB"
     ),
   firstName: optionalString, // Optional first name field
   lastName: optionalString, // Optional last name field
@@ -45,18 +45,35 @@ export const workExperienceSchema = z.object({
         startDate: optionalString, // Optional start date field
         endDate: optionalString, // Optional end date field
         description: optionalString, // Optional description field
-      }),
+      })
     )
     .optional(), // Work experiences array is optional
 });
 
 export type WorkExperienceValues = z.infer<typeof workExperienceSchema>;
 
+// Schema for Education form validation
+export const educationSchema = z.object({
+  educations: z
+    .array(
+      z.object({
+        degree: optionalString, // Optional degree field
+        school: optionalString, // Optional school field
+        startDate: optionalString, // Optional start date field
+        endDate: optionalString, // Optional end date field
+      })
+    )
+    .optional(), // Educations array is optional
+});
+
+export type EducationValues = z.infer<typeof educationSchema>;
+
 // Schema for the entire resume, combining all previous schemas
 export const resumeSchema = z.object({
   ...generalInfoSchema.shape, // Includes General Info fields
   ...personalInfoSchema.shape, // Includes Personal Info fields
   ...workExperienceSchema.shape, // Includes Work Experience fields
+  ...educationSchema.shape, // Includes Education fields
 });
 
 // Type definition for ResumeValues with modifications for the photo field
