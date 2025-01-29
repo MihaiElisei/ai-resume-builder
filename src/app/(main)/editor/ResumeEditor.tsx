@@ -1,16 +1,20 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { steps } from "./steps";
 import Breadcrumbs from "./Breadcrumbs";
+import Footer from "./Footer";
+import { useState } from "react";
+import { ResumeValues } from "@/lib/validation";
 
 export default function ResumeEditor() {
   const searchParams = useSearchParams();
 
   // Determine the current step based on the URL parameters or default to the first step
   const currentStep = searchParams.get("step") || steps[0].key;
+
+  // State to store resume data, which will be updated as the user fills out the form
+  const [resumeData, setResumeData] = useState<ResumeValues>({});
 
   // Update the URL with the selected step
   function setStep(key: string) {
@@ -38,38 +42,29 @@ export default function ResumeEditor() {
       {/* Main content */}
       <main className="relative grow">
         <div className="absolute bottom-0 top-0 flex w-full">
-          {/* Left column */}
+          {/* Left column: Contains breadcrumbs and form for the current step */}
           <div className="w-full p-3 md:w-1/2 overflow-y-auto space-y-6">
             <Breadcrumbs currentStep={currentStep} setCurrentStep={setStep} />
-            {FormComponent && <FormComponent />}
+            {FormComponent && (
+              <FormComponent
+                resumeData={resumeData}
+                setResumeData={setResumeData}
+              />
+            )}
           </div>
 
-          {/* Separator */}
+          {/* Separator between left and right columns */}
           <div className="grow md:border-r" />
 
-          {/* Right column */}
-          <div className="hidden w-1/2 md:flex">right</div>
+          {/* Right column: Displays current resume data for debugging */}
+          <div className="hidden w-1/2 md:flex">
+            <pre>{JSON.stringify(resumeData, null, 2)}</pre>
+          </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full border-t px-3 py-5">
-        <div className="max-w-7xl mx-auto flex flex-wrap justify-between gap-3">
-          {/* Navigation buttons */}
-          <div className="flex items-center gap-3">
-            <Button variant="secondary">Previous step</Button>
-            <Button>Next step</Button>
-          </div>
-
-          {/* Close and saving status */}
-          <div className="flex items-center gap-3">
-            <Button variant="secondary" asChild>
-              <Link href="/resumes">Close</Link>
-            </Button>
-            <p className="text-muted-foreground opacity-0">Saving...</p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer with navigation controls */}
+      <Footer currentStep={currentStep} setCurrentStep={setStep} />
     </div>
   );
 }

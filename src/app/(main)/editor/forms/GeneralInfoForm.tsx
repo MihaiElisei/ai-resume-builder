@@ -1,17 +1,45 @@
 import { generalInfoSchema, GeneralInfoValues } from "@/lib/validation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { EditorFormProps } from "@/lib/types";
+import { useEffect } from "react";
 
 // This component collects and validates general information (title and description).
 // Uses react-hook-form for form state management and Zod for validation.
 
-export default function GeneralInfoForm() {
+export default function GeneralInfoForm({
+  resumeData,
+  setResumeData,
+}: EditorFormProps) {
   const form = useForm<GeneralInfoValues>({
     resolver: zodResolver(generalInfoSchema), // Integrates Zod schema for form validation.
-    defaultValues: { title: "", description: "" }, // Default empty values for fields.
+    defaultValues: {
+      title: resumeData.title || "",
+      description: resumeData.description || "",
+    }, // Default empty values for fields.
   });
+
+  useEffect(() => {
+    const { unsubscribe } = form.watch(async (values) => {
+      const isValid = await form.trigger(); // Automatically validate on input change.
+      if (!isValid) return;
+      setResumeData({
+        ...resumeData,
+        ...values,
+      });
+    });
+    return unsubscribe;
+  }, [form, resumeData, setResumeData]);
 
   return (
     <div className="max-w-xl mx-auto space-y-6">
