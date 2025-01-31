@@ -1,13 +1,21 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { steps } from "./steps";
+import { FileUserIcon, PenLineIcon } from "lucide-react";
 
 interface FooterProps {
   currentStep: string;
   setCurrentStep: (step: string) => void;
+  showSmResumePreview: boolean;
+  setShowSmResumePreview: (show: boolean) => void;
 }
 
-export default function Footer({ currentStep, setCurrentStep }: FooterProps) {
+export default function Footer({
+  currentStep,
+  setCurrentStep,
+  showSmResumePreview,
+  setShowSmResumePreview,
+}: FooterProps) {
   const previousStep = steps.find(
     (_, index) => steps[index + 1]?.key === currentStep,
   )?.key;
@@ -18,7 +26,7 @@ export default function Footer({ currentStep, setCurrentStep }: FooterProps) {
 
   return (
     <footer className="w-full border-t px-3 py-5">
-      <div className="max-w-7xl mx-auto flex flex-wrap justify-between gap-3">
+      <div className="mx-auto flex max-w-7xl flex-wrap justify-between gap-3">
         {/* Navigation buttons */}
         <div className="flex items-center gap-3">
           <Button
@@ -33,10 +41,26 @@ export default function Footer({ currentStep, setCurrentStep }: FooterProps) {
           <Button
             onClick={nextStep ? () => setCurrentStep(nextStep) : undefined}
             disabled={!nextStep}
+            className="md:hidden"
+            title={
+              showSmResumePreview ? "Show input form" : "Show resume preview"
+            }
           >
             Next step
           </Button>
         </div>
+
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setShowSmResumePreview(!showSmResumePreview)}
+          className="md:hidden"
+          title={
+            showSmResumePreview ? "Show input form" : "Show resume preview"
+          }
+        >
+          {showSmResumePreview ? <PenLineIcon /> : <FileUserIcon />}
+        </Button>
 
         {/* Close and saving status */}
         <div className="flex items-center gap-3">
