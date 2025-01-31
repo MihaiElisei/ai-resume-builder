@@ -6,6 +6,7 @@ import Breadcrumbs from "./Breadcrumbs";
 import Footer from "./Footer";
 import { useState } from "react";
 import { ResumeValues } from "@/lib/validation";
+import ResumePreviewSection from "./ResumePreviewSection";
 
 export default function ResumeEditor() {
   const searchParams = useSearchParams();
@@ -43,7 +44,7 @@ export default function ResumeEditor() {
       <main className="relative grow">
         <div className="absolute bottom-0 top-0 flex w-full">
           {/* Left column: Contains breadcrumbs and form for the current step */}
-          <div className="w-full p-3 md:w-1/2 overflow-y-auto space-y-6">
+          <div className="w-full space-y-6 overflow-y-auto p-3 md:w-1/2">
             <Breadcrumbs currentStep={currentStep} setCurrentStep={setStep} />
             {FormComponent && (
               <FormComponent
@@ -57,9 +58,10 @@ export default function ResumeEditor() {
           <div className="grow md:border-r" />
 
           {/* Right column: Displays current resume data for debugging */}
-          <div className="hidden w-1/2 md:flex">
-            <pre>{JSON.stringify(resumeData, null, 2)}</pre>
-          </div>
+          <ResumePreviewSection
+            resumeData={resumeData}
+            setResumeData={setResumeData}
+          />
         </div>
       </main>
 

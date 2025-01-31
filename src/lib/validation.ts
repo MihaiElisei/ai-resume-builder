@@ -90,6 +90,8 @@ export const resumeSchema = z.object({
   ...educationSchema.shape, // Includes Education fields
   ...skillsSchema.shape, // Includes Skills fields
   ...summarySchema.shape, // Includes Summary fields
+  colorHex: optionalString, // Optional hex color for styling
+  borderStyle: optionalString, // Optional border style for profile photo or sections
 });
 
 // Type definition for ResumeValues with modifications for the photo field
