@@ -1,13 +1,15 @@
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { FileUserIcon, PenLineIcon } from "lucide-react";
 import Link from "next/link";
 import { steps } from "./steps";
-import { FileUserIcon, PenLineIcon } from "lucide-react";
 
 interface FooterProps {
   currentStep: string;
   setCurrentStep: (step: string) => void;
   showSmResumePreview: boolean;
   setShowSmResumePreview: (show: boolean) => void;
+  isSaving: boolean;
 }
 
 export default function Footer({
@@ -15,6 +17,7 @@ export default function Footer({
   setCurrentStep,
   showSmResumePreview,
   setShowSmResumePreview,
+  isSaving,
 }: FooterProps) {
   const previousStep = steps.find(
     (_, index) => steps[index + 1]?.key === currentStep,
@@ -27,7 +30,6 @@ export default function Footer({
   return (
     <footer className="w-full border-t px-3 py-5">
       <div className="mx-auto flex max-w-7xl flex-wrap justify-between gap-3">
-        {/* Navigation buttons */}
         <div className="flex items-center gap-3">
           <Button
             variant="secondary"
@@ -41,15 +43,10 @@ export default function Footer({
           <Button
             onClick={nextStep ? () => setCurrentStep(nextStep) : undefined}
             disabled={!nextStep}
-            className="md:hidden"
-            title={
-              showSmResumePreview ? "Show input form" : "Show resume preview"
-            }
           >
             Next step
           </Button>
         </div>
-
         <Button
           variant="outline"
           size="icon"
@@ -61,13 +58,18 @@ export default function Footer({
         >
           {showSmResumePreview ? <PenLineIcon /> : <FileUserIcon />}
         </Button>
-
-        {/* Close and saving status */}
         <div className="flex items-center gap-3">
           <Button variant="secondary" asChild>
             <Link href="/resumes">Close</Link>
           </Button>
-          <p className="text-muted-foreground opacity-0">Saving...</p>
+          <p
+            className={cn(
+              "text-muted-foreground opacity-0",
+              isSaving && "opacity-100",
+            )}
+          >
+            Saving...
+          </p>
         </div>
       </div>
     </footer>

@@ -172,7 +172,7 @@ function WorkExperienceSection({ resumeData }: ResumeSectionProps) {
 
 function EducationSection({ resumeData }: ResumeSectionProps) {
   const { educations, colorHex } = resumeData;
-  
+
   // Filter out empty education entries
   const educationsNotEmpty = educations?.filter(
     (edu) => Object.values(edu).filter(Boolean).length > 0,

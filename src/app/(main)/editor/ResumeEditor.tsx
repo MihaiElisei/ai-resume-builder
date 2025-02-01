@@ -7,18 +7,31 @@ import Footer from "./Footer";
 import { useState } from "react";
 import { ResumeValues } from "@/lib/validation";
 import ResumePreviewSection from "./ResumePreviewSection";
-import { cn } from "@/lib/utils";
+import { cn, mapToResumeValues } from "@/lib/utils";
+import useAutoSaveResume from "./useAutoSaveResume";
+import useUnloadWarning from "@/hooks/useUnloadWarning";
+import { ResumeServerData } from "@/lib/types";
 
-export default function ResumeEditor() {
+interface ResumeEditorProps {
+  resumeToEdit: ResumeServerData | null;
+}
+
+export default function ResumeEditor({ resumeToEdit }: ResumeEditorProps) {
   const searchParams = useSearchParams();
 
   // Determine the current step based on the URL parameters or default to the first step
   const currentStep = searchParams.get("step") || steps[0].key;
 
   // State to store resume data, which will be updated as the user fills out the form
-  const [resumeData, setResumeData] = useState<ResumeValues>({});
+  const [resumeData, setResumeData] = useState<ResumeValues>(
+    resumeToEdit ? mapToResumeValues(resumeToEdit) : {},
+  );
 
   const [showSmResumePreview, setShowSmResumePreview] = useState(false);
+
+  const { isSaving, hasUnsavedChanges } = useAutoSaveResume(resumeData);
+
+  useUnloadWarning(hasUnsavedChanges);
 
   // Update the URL with the selected step
   function setStep(key: string) {
@@ -80,6 +93,7 @@ export default function ResumeEditor() {
         setCurrentStep={setStep}
         showSmResumePreview={showSmResumePreview}
         setShowSmResumePreview={setShowSmResumePreview}
+        isSaving={isSaving}
       />
     </div>
   );
