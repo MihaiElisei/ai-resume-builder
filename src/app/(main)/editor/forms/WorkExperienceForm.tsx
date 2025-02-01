@@ -34,6 +34,7 @@ import {
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/lib/utils";
+import GenerateWorkExperienceButton from "./GenerateWorkExperienceButton";
 
 export default function WorkEperienceForm({
   resumeData,
@@ -47,7 +48,7 @@ export default function WorkEperienceForm({
   });
   useEffect(() => {
     const { unsubscribe } = form.watch(async (values) => {
-      const isValid = await form.trigger(); // Automatically validate on input change.
+      const isValid = await form.trigger(); 
       if (!isValid) return;
       setResumeData({
         ...resumeData,
@@ -254,9 +255,20 @@ function WorkExperienceItem({
           </FormItem>
         )}
       />
-      <Button variant="destructive" type="button" onClick={() => remove(index)}>
-        Remove
-      </Button>
+      <div className="flex items-center justify-between">
+        <GenerateWorkExperienceButton
+          onWorkExperienceGenerated={(exp) =>
+            form.setValue(`workExperiences.${index}`, exp)
+          }
+        />
+        <Button
+          variant="destructive"
+          type="button"
+          onClick={() => remove(index)}
+        >
+          Remove
+        </Button>
+      </div>
     </div>
   );
 }
