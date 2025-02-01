@@ -72,7 +72,7 @@ function PersonalInfoHeader({ resumeData }: ResumeSectionProps) {
   }, [photo]);
 
   return (
-    <div className="flex items-center gap-6">
+    <div className="flex items-center gap-6 ">
       {/* Profile photo */}
       {photoSrc && (
         <Image
@@ -92,7 +92,7 @@ function PersonalInfoHeader({ resumeData }: ResumeSectionProps) {
         />
       )}
       {/* Personal details */}
-      <div className="space-y-2.5">
+      <div className="space-y-2.5 w-full text-center">
         <div className="space-y-1">
           <p className="text-3xl font-bold" style={{ color: colorHex }}>
             {firstName} {lastName}
@@ -124,7 +124,7 @@ function SummarySection({ resumeData }: ResumeSectionProps) {
         <p className="font-lg font-semibold" style={{ color: colorHex }}>
           Professional Profile
         </p>
-        <div className="whitespace-pre-line text-sm">{summary}</div>
+        <div className="whitespace-pre-line text-sm text-justify ml-5 mr-5">{summary}</div>
       </div>
     </>
   );
@@ -148,7 +148,7 @@ function WorkExperienceSection({ resumeData }: ResumeSectionProps) {
           Work Experience
         </p>
         {workExperiencesNotEmpty.map((exp, index) => (
-          <div key={index} className="break-inside-avoid space-y-1">
+          <div key={index} className="break-inside-avoid space-y-1 ml-5">
             <div
               className="flex items-center justify-between text-sm font-semibold"
               style={{ color: colorHex }}
@@ -161,8 +161,8 @@ function WorkExperienceSection({ resumeData }: ResumeSectionProps) {
                 </span>
               )}
             </div>
-            <p className="text-xs font-semibold">{exp.company}</p>
-            <div className="whitespace-pre-line text-xs">{exp.description}</div>
+            <p className="text-xs font-semibold">{exp.company}:</p>
+            <div className="whitespace-pre-line text-xs text-justify ml-4 mr-5">{exp.description}</div>
           </div>
         ))}
       </div>
@@ -188,7 +188,7 @@ function EducationSection({ resumeData }: ResumeSectionProps) {
           Education
         </p>
         {educationsNotEmpty.map((edu, index) => (
-          <div key={index} className="break-inside-avoid space-y-1">
+          <div key={index} className="break-inside-avoid space-y-1 ml-5">
             <div
               className="flex items-center justify-between text-sm font-semibold"
               style={{ color: colorHex }}
@@ -221,7 +221,7 @@ function SkillsSection({ resumeData }: ResumeSectionProps) {
         <p className="text-lg font-semibold" style={{ color: colorHex }}>
           Skills
         </p>
-        <div className="flex break-inside-avoid flex-wrap gap-2">
+        <div className="flex break-inside-avoid justify-evenly flex-wrap gap-2 ml-5">
           {skills.map((skill, index) => (
             <Badge
               key={index}
