@@ -7,13 +7,17 @@ import { formatDate } from "date-fns";
 import { Badge } from "./ui/badge";
 import { BorderStyles } from "@/app/(main)/editor/BorderStyleButton";
 
+// Define the ResumePreviewProps interface for the props expected by the ResumePreview component
 interface ResumePreviewProps {
   resumeData: ResumeValues; // Resume data containing all user-inputted information
+  contentRef?: React.Ref<HTMLDivElement>;
   className?: string; // Optional className for styling customization
 }
 
+// ResumePreview component which displays the resume preview
 export default function ResumePreview({
   resumeData,
+  contentRef,
   className,
 }: ResumePreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null); // Reference for the preview container
@@ -22,16 +26,18 @@ export default function ResumePreview({
   return (
     <div
       className={cn(
-        "aspect-[210/297] h-fit w-full bg-white text-black",
+        "aspect-[210/297] h-fit w-full bg-white text-black", // A4 size aspect ratio styling
         className,
       )}
       ref={containerRef} // Attach the reference to the container
     >
       <div
-        className={cn("space-y-6 p-6", !width && "invisible")}
+        className={cn("space-y-6 p-6", !width && "invisible")} // Make the content invisible if width is not available
         style={{
-          zoom: (1 / 794) * width, // Scale content dynamically based on container width
+          zoom: (1 / 794) * width, // Dynamically scale content based on container width
         }}
+        ref={contentRef} // Reference for the content section
+        id="resumePreviewContent"
       >
         {/* Resume sections */}
         <PersonalInfoHeader resumeData={resumeData} />
@@ -44,10 +50,12 @@ export default function ResumePreview({
   );
 }
 
+// Define a common prop structure for all resume sections
 interface ResumeSectionProps {
-  resumeData: ResumeValues; // Common prop structure for all resume sections
+  resumeData: ResumeValues; // Resume data containing all user-inputted information
 }
 
+// Personal info header displaying the name, title, and contact info
 function PersonalInfoHeader({ resumeData }: ResumeSectionProps) {
   const {
     photo,
@@ -61,19 +69,21 @@ function PersonalInfoHeader({ resumeData }: ResumeSectionProps) {
     colorHex,
     borderStyle,
   } = resumeData;
+
+  // Manage photo URL dynamically for file uploads
   const [photoSrc, setPhotoSrc] = useState(photo instanceof File ? "" : photo);
 
   useEffect(() => {
     // Convert the uploaded file to a URL for display
     const objectUrl = photo instanceof File ? URL.createObjectURL(photo) : "";
-    if (objectUrl) setPhotoSrc(objectUrl);
-    if (photo === null) setPhotoSrc(""); // Reset photo if removed
-    return () => URL.revokeObjectURL(objectUrl); // Cleanup on unmount
+    if (objectUrl) setPhotoSrc(objectUrl); // Update photo source URL
+    if (photo === null) setPhotoSrc(""); // Reset photo if it was removed
+    return () => URL.revokeObjectURL(objectUrl); // Cleanup on component unmount
   }, [photo]);
 
   return (
-    <div className="flex items-center gap-6 ">
-      {/* Profile photo */}
+    <div className="flex items-center gap-6">
+      {/* Display profile photo if available */}
       {photoSrc && (
         <Image
           src={photoSrc}
@@ -84,21 +94,21 @@ function PersonalInfoHeader({ resumeData }: ResumeSectionProps) {
           style={{
             borderRadius:
               borderStyle === BorderStyles.SQUARE
-                ? "0px"
+                ? "0px" // Square border style
                 : borderStyle === BorderStyles.CIRCLE
-                  ? "9999px"
-                  : "10%",
+                ? "9999px" // Circular border style
+                : "10%", // Default border radius
           }}
         />
       )}
-      {/* Personal details */}
-      <div className="space-y-2.5 w-full text-center">
+      {/* Display personal details like name, title, and contact info */}
+      <div className="w-full space-y-2.5 text-center">
         <div className="space-y-1">
           <p className="text-3xl font-bold" style={{ color: colorHex }}>
-            {firstName} {lastName}
+            {firstName} {lastName} {/* Full name */}
           </p>
           <p className="font-medium" style={{ color: colorHex }}>
-            {jobTitle}
+            {jobTitle} {/* Job title */}
           </p>
         </div>
         <p className="text-xs text-gray-500">
@@ -106,13 +116,14 @@ function PersonalInfoHeader({ resumeData }: ResumeSectionProps) {
           {city && country ? ", " : ""}
           {country}
           {(city || country) && (phone || email) ? " • " : ""}
-          {[phone, email].filter(Boolean).join(" • ")}
+          {[phone, email].filter(Boolean).join(" • ")} {/* Contact details */}
         </p>
       </div>
     </div>
   );
 }
 
+// Summary section to display the professional profile
 function SummarySection({ resumeData }: ResumeSectionProps) {
   const { summary, colorHex } = resumeData;
 
@@ -122,14 +133,17 @@ function SummarySection({ resumeData }: ResumeSectionProps) {
       <hr className="border-2" style={{ borderColor: colorHex }} />
       <div className="break-inside-avoid space-y-3">
         <p className="font-lg font-semibold" style={{ color: colorHex }}>
-          Professional Profile
+          Professional Profile {/* Section title */}
         </p>
-        <div className="whitespace-pre-line text-sm text-justify ml-5 mr-5">{summary}</div>
+        <div className="ml-5 mr-5 whitespace-pre-line text-justify text-sm">
+          {summary} {/* Display the professional summary */}
+        </div>
       </div>
     </>
   );
 }
 
+// Work experience section to display job history
 function WorkExperienceSection({ resumeData }: ResumeSectionProps) {
   const { workExperiences, colorHex } = resumeData;
 
@@ -138,31 +152,33 @@ function WorkExperienceSection({ resumeData }: ResumeSectionProps) {
     (exp) => Object.values(exp).filter(Boolean).length > 0,
   );
 
-  if (!workExperiencesNotEmpty?.length) return null;
+  if (!workExperiencesNotEmpty?.length) return null; // Hide section if no work experiences are provided
 
   return (
     <>
       <hr className="border-2" style={{ borderColor: colorHex }} />
       <div className="space-y-3">
         <p className="text-lg font-semibold" style={{ color: colorHex }}>
-          Work Experience
+          Work Experience {/* Section title */}
         </p>
         {workExperiencesNotEmpty.map((exp, index) => (
-          <div key={index} className="break-inside-avoid space-y-1 ml-5">
+          <div key={index} className="ml-5 break-inside-avoid space-y-1">
             <div
               className="flex items-center justify-between text-sm font-semibold"
               style={{ color: colorHex }}
             >
-              <span>{exp.position}</span>
+              <span>{exp.position}</span> {/* Job position */}
               {exp.startDate && (
                 <span>
                   {formatDate(exp.startDate, "MM/yyyy")} -{" "}
-                  {exp.endDate ? formatDate(exp.endDate, "MM/yyyy") : "Present"}
+                  {exp.endDate ? formatDate(exp.endDate, "MM/yyyy") : "Present"} {/* Employment period */}
                 </span>
               )}
             </div>
-            <p className="text-xs font-semibold">{exp.company}:</p>
-            <div className="whitespace-pre-line text-xs text-justify ml-4 mr-5">{exp.description}</div>
+            <p className="text-xs font-semibold">{exp.company}:</p> {/* Company name */}
+            <div className="ml-4 mr-5 whitespace-pre-line text-justify text-xs">
+              {exp.description} {/* Job description */}
+            </div>
           </div>
         ))}
       </div>
@@ -170,6 +186,7 @@ function WorkExperienceSection({ resumeData }: ResumeSectionProps) {
   );
 }
 
+// Education section to display academic history
 function EducationSection({ resumeData }: ResumeSectionProps) {
   const { educations, colorHex } = resumeData;
 
@@ -178,30 +195,30 @@ function EducationSection({ resumeData }: ResumeSectionProps) {
     (edu) => Object.values(edu).filter(Boolean).length > 0,
   );
 
-  if (!educationsNotEmpty?.length) return null;
+  if (!educationsNotEmpty?.length) return null; // Hide section if no education entries are provided
 
   return (
     <>
       <hr className="border-2" style={{ borderColor: colorHex }} />
       <div className="space-y-3">
         <p className="text-lg font-semibold" style={{ color: colorHex }}>
-          Education
+          Education {/* Section title */}
         </p>
         {educationsNotEmpty.map((edu, index) => (
-          <div key={index} className="break-inside-avoid space-y-1 ml-5">
+          <div key={index} className="ml-5 break-inside-avoid space-y-1">
             <div
               className="flex items-center justify-between text-sm font-semibold"
               style={{ color: colorHex }}
             >
-              <span>{edu.degree}</span>
+              <span>{edu.degree}</span> {/* Degree obtained */}
               {edu.startDate && (
                 <span>
                   {edu.startDate &&
-                    `${formatDate(edu.startDate, "MM/yyyy")} ${edu.endDate ? `- ${formatDate(edu.endDate, "MM/yyyy")}` : ""}`}
+                    `${formatDate(edu.startDate, "MM/yyyy")} ${edu.endDate ? `- ${formatDate(edu.endDate, "MM/yyyy")}` : ""}`} {/* Duration */}
                 </span>
               )}
             </div>
-            <p className="text-xs font-semibold">{edu.school}</p>
+            <p className="text-xs font-semibold">{edu.school}</p> {/* School name */}
           </div>
         ))}
       </div>
@@ -209,6 +226,7 @@ function EducationSection({ resumeData }: ResumeSectionProps) {
   );
 }
 
+// Skills section to display the skillset
 function SkillsSection({ resumeData }: ResumeSectionProps) {
   const { skills, colorHex, borderStyle } = resumeData;
 
@@ -219,24 +237,24 @@ function SkillsSection({ resumeData }: ResumeSectionProps) {
       <hr className="border-2" style={{ borderColor: colorHex }} />
       <div className="break-inside-avoid space-y-3">
         <p className="text-lg font-semibold" style={{ color: colorHex }}>
-          Skills
+          Skills {/* Section title */}
         </p>
-        <div className="flex break-inside-avoid justify-evenly flex-wrap gap-2 ml-5">
+        <div className="ml-5 flex break-inside-avoid flex-wrap justify-evenly gap-2">
           {skills.map((skill, index) => (
             <Badge
               key={index}
               className="rounded-md bg-black text-white hover:bg-black"
               style={{
-                backgroundColor: colorHex,
+                backgroundColor: colorHex, // Dynamic background color based on resumeData
                 borderRadius:
                   borderStyle === BorderStyles.SQUARE
-                    ? "0px"
+                    ? "0px" // Square border style
                     : borderStyle === BorderStyles.CIRCLE
-                      ? "9999px"
-                      : "8px",
+                    ? "9999px" // Circular border style
+                    : "8px", // Default border radius
               }}
             >
-              {skill}
+              {skill} {/* Display each skill */}
             </Badge>
           ))}
         </div>

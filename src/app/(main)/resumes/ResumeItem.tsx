@@ -22,9 +22,10 @@ import { mapToResumeValues } from "@/lib/utils";
 import { format } from "date-fns"; // Used for date formatting
 import { MoreVertical, Printer, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { deleteResume } from "./actions"; // Function to delete the resume
 import { useToast } from "@/hooks/use-toast"; // Custom hook for displaying toasts
+import { useReactToPrint } from "react-to-print"; // Hook for handling print functionality
 
 // Define the props for ResumeItem component
 interface ResumeItemProps {
@@ -32,6 +33,14 @@ interface ResumeItemProps {
 }
 
 export default function ResumeItem({ resume }: ResumeItemProps) {
+  const contentRef = useRef<HTMLDivElement>(null); // Reference for the content to be printed
+
+  // React-to-print function for printing the resume
+  const reactToPrintFn = useReactToPrint({
+    contentRef,
+    documentTitle: resume.title || "resume", // Set the document title when printing
+  });
+
   // Check if the resume was updated by comparing updatedAt with createdAt
   const wasUpdated = resume.updatedAt !== resume.createdAt;
 
@@ -64,6 +73,7 @@ export default function ResumeItem({ resume }: ResumeItemProps) {
         >
           <ResumePreview
             resumeData={mapToResumeValues(resume)} // Map server data to resume values
+            contentRef={contentRef} // Reference passed to the ResumePreview component for printing
             className="overflow-hidden shadow-sm transition-shadow group-hover:shadow-lg"
           />
           {/* Gradient overlay at the bottom of the preview for design */}
@@ -71,7 +81,7 @@ export default function ResumeItem({ resume }: ResumeItemProps) {
         </Link>
       </div>
       {/* More options menu for the resume */}
-      <MoreMenu resumeId={resume.id} />
+      <MoreMenu resumeId={resume.id} onPrintClick={reactToPrintFn} />
     </div>
   );
 }
@@ -79,9 +89,10 @@ export default function ResumeItem({ resume }: ResumeItemProps) {
 // More options menu for the resume item
 interface MoreMenuProps {
   resumeId: string; // The resume ID that will be passed to the delete function
+  onPrintClick: () => void; // Print click handler, passed from ResumeItem
 }
 
-function MoreMenu({ resumeId }: MoreMenuProps) {
+function MoreMenu({ resumeId, onPrintClick }: MoreMenuProps) {
   // State for showing or hiding delete confirmation dialog
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
@@ -108,9 +119,10 @@ function MoreMenu({ resumeId }: MoreMenuProps) {
             <Trash2 className="size-4" />
             Delete
           </DropdownMenuItem>
-          {/* Option to print the resume (currently not functional) */}
+          {/* Option to print the resume */}
           <DropdownMenuItem
             className="flex items-center gap-2"
+            onClick={onPrintClick} // Trigger the print function
           >
             <Printer className="size-4" />
             Print
@@ -147,7 +159,7 @@ function DeleteConfirmationDialog({
   /**
    * Function to handle the delete operation.
    * It calls the deleteResume function and shows feedback via toast.
-   * 
+   *
    * @returns {void}
    */
   async function handleDelete() {
